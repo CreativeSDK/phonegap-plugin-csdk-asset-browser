@@ -1,29 +1,27 @@
 {
-    "name": "cordova-plugin-template",
+    "name": "phonegap-plugin-csdk-asset-browser",
     "description": "This repo is a template for starting a new plugin.",
     "version": "0.0.1",
-    "homepage": "http://github.com/macdonst/cordova-plugin-template#readme",
+    "homepage": "http://github.com/CreativeSDK/phonegap-plugin-csdk-asset-browser#readme",
     "repository": {
         "type": "git",
-        "url": "git://github.com/macdonst/cordova-plugin-template.git"
+        "url": "git://github.com/CreativeSDK/phonegap-plugin-csdk-asset-browser.git"
     },
     "bugs": {
-        "url": "https://github.com/macdonst/cordova-plugin-template/issues"
+        "url": "https://github.com/CreativeSDK/phonegap-plugin-csdk-asset-browser/issues"
     },
     "cordova": {
-        "id": "cordova-plugin-template",
+        "id": "phonegap-plugin-csdk-asset-browser",
         "platforms": [
             "ios",
-            "android",
-            "browser"
+            "android"
         ]
     },
     "keywords": [
         "ecosystem:cordova",
         "ecosystem:phonegap",
         "cordova-ios",
-        "cordova-android",
-        "cordova-browser"
+        "cordova-android"
     ],
     "engines": [
         {

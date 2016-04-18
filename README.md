@@ -19,7 +19,23 @@
 #
 -->
 
-cordova-plugin-template
+phonegap-plugin-csdk-asset-browser
 ------------------------
 
-This repo is a template for starting a new plugin.
+# Prerequisites
+
+Before you can work with the Creative SDK, you must register your application and get Client ID and Client Secret values. For details, see [Registering Your Application](https://creativesdk.adobe.com/docs/ios/#/articles/gettingstarted/index.html).
+
+To get the iOS SDK, go to the [Downloads page](https://creativesdk.adobe.com/downloads.html), download the ZIP files, and extract them to the src/ios folder of this plugin. It should create a AdobeCreativeSDKFrameworks folder. The ZIP files contain all the frameworks in the Creative SDK but for this plugin we will only be using the AdobeCreativeSDKCore.framework.
+
+The following software is required:
+- Xcode 7 or higher
+- iOS 8.2 or higher
+
+# Installation
+
+To add to your app:
+
+```
+phonegap plugin add --save https://github.com/CreativeSDK/phonegap-plugin-csdk-asset-browser
+```
