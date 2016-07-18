@@ -54,6 +54,7 @@ public class AssetBrowserActivity extends Activity {
         } else if (resultCode == Activity.RESULT_CANCELED) {
             //this.callbackContext.error("Asset Browser Canceled");
             Log.d(LOG_TAG, "Asset Browser Canceled");
+            finish();
         }
     }
 
