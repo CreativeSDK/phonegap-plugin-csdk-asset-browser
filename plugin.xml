@@ -24,8 +24,8 @@
       version="0.0.1">
     <name>phonegap-plugin-csdk-asset-browser</name>
 
-    <dependency id="phonegap-plugin-csdk-client-auth" url="https://github.com/CreativeSDK/phonegap-plugin-csdk-client-auth" />
-    <dependency id="phonegap-plugin-csdk-user-auth" url="https://github.com/CreativeSDK/phonegap-plugin-csdk-user-auth" />
+    <!-- dependency id="phonegap-plugin-csdk-client-auth" url="https://github.com/CreativeSDK/phonegap-plugin-csdk-client-auth" />
+    <dependency id="phonegap-plugin-csdk-user-auth" url="https://github.com/CreativeSDK/phonegap-plugin-csdk-user-auth" / -->
 
     <js-module src="www/AssetBrowser.js" name="AssetBrowser">
         <clobbers target="AssetBrowser" />
