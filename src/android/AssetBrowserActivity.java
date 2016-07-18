@@ -8,8 +8,13 @@ import android.util.Log;
 import com.adobe.creativesdk.foundation.internal.utils.AdobeCSDKException;
 import com.adobe.creativesdk.foundation.storage.AdobeSelection;
 import com.adobe.creativesdk.foundation.storage.AdobeUXAssetBrowser;
+import com.adobe.creativesdk.foundation.storage.AdobeUXAssetBrowserConfiguration;
+import com.adobe.creativesdk.foundation.storage.AdobeAssetDataSourceFilter;
+import com.adobe.creativesdk.foundation.storage.AdobeAssetDataSourceFilterType;
+import com.adobe.creativesdk.foundation.storage.AdobeAssetDataSourceType;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 
 public class AssetBrowserActivity extends Activity {
     private static final String LOG_TAG = "CreativeSDK_AssetBrowserActivity";
@@ -19,8 +24,14 @@ public class AssetBrowserActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         AdobeUXAssetBrowser assetBrowser = AdobeUXAssetBrowser.getSharedInstance();
+        AdobeUXAssetBrowserConfiguration configuration = new AdobeUXAssetBrowserConfiguration();
+        configuration.dataSourceFilter = AdobeAssetDataSourceFilter.createFromDataSources(
+            EnumSet.of(AdobeAssetDataSourceType.AdobeAssetDataSourceFiles),
+            AdobeAssetDataSourceFilterType.ADOBE_ASSET_DATASOURCE_FILTER_INCLUSION
+        );
+
         try {
-            assetBrowser.popupFileBrowser(this, 300); // Can be any int
+            assetBrowser.popupFileBrowser(this, 300, configuration);
         }
         catch (AdobeCSDKException e) {
             Log.e(LOG_TAG, e.getLocalizedMessage(), e);
