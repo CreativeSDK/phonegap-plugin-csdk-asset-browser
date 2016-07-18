@@ -43,6 +43,10 @@
             <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
         </config-file>
 
+        <config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <activity android:name="com.adobe.phonegap.csdk.AssetBrowserActivity" android:exported="false"/>
+        </config-file>
+
         <framework src="com.adobe.creativesdk.foundation:assetux:0.9.7+"/>
 
         <source-file src="src/android/AssetBrowser.java" target-dir="src/com/adobe/phonegap/csdk" />
