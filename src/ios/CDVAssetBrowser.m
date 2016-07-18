@@ -19,9 +19,7 @@
 
 #import <AdobeCreativeSDKAssetUX/AdobeCreativeSDKAssetUX.h>
 #import <Cordova/CDV.h>
-
-@interface CDVAssetBrowser : CDVPlugin
-@end
+#import "CDVAssetBrowser.h"
 
 @implementation CDVAssetBrowser
 
