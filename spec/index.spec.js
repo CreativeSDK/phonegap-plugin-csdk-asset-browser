@@ -5,7 +5,7 @@
  */
 
 var cordova = require('./helper/cordova'),
-    AssetBrowser = require('../www/AssetBrowser'),
+    CSDKAssetBrowser = require('../www/AssetBrowser'),
     execSpy,
     execWin,
     options;
@@ -20,20 +20,20 @@ describe('phonegap-plugin-csdk-asset-browser', function () {
         execSpy = spyOn(cordova.required, 'cordova/exec').andCallFake(execWin);
     });
 
-    describe('AssetBrowser', function () {
+    describe('CSDKAssetBrowser', function () {
         it('should exist', function () {
-            expect(AssetBrowser).toBeDefined();
-            expect(typeof AssetBrowser === 'object').toBe(true);
+            expect(CSDKAssetBrowser).toBeDefined();
+            expect(typeof CSDKAssetBrowser === 'object').toBe(true);
         });
 
         it('should contain a getFileMetadata function', function () {
-            expect(AssetBrowser.getFileMetadata).toBeDefined();
-            expect(typeof AssetBrowser.getFileMetadata === 'function').toBe(true);
+            expect(CSDKAssetBrowser.getFileMetadata).toBeDefined();
+            expect(typeof CSDKAssetBrowser.getFileMetadata === 'function').toBe(true);
         });
 
         it('should contain a downloadFiles function', function () {
-            expect(AssetBrowser.downloadFiles).toBeDefined();
-            expect(typeof AssetBrowser.downloadFiles === 'function').toBe(true);
+            expect(CSDKAssetBrowser.downloadFiles).toBeDefined();
+            expect(typeof CSDKAssetBrowser.downloadFiles === 'function').toBe(true);
         });
     });
 });

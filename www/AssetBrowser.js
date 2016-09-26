@@ -25,7 +25,7 @@
 var exec = cordova.require('cordova/exec'),
     utils = cordova.require('cordova/utils');
 
-var AssetBrowser = {
+var CSDKAssetBrowser = {
     /*
     Gets metadata for your Creative Cloud file.
 
@@ -36,7 +36,7 @@ var AssetBrowser = {
     as its only argument, an error message.
     */
     getFileMetadata: function(successCallback, failureCallback) {
-        exec(successCallback, failureCallback, 'AssetBrowser', 'getFileMetadata', []);
+        exec(successCallback, failureCallback, 'CSDKAssetBrowser', 'getFileMetadata', []);
     },
 
     /*
@@ -67,8 +67,8 @@ var AssetBrowser = {
             If omitted, JPEG is the default.
     */
     downloadFiles: function(successCallback, failureCallback, options) {
-        exec(successCallback, failureCallback, 'AssetBrowser', 'downloadFiles', [ options ]);
+        exec(successCallback, failureCallback, 'CSDKAssetBrowser', 'downloadFiles', [ options ]);
     }
 };
 
-module.exports = AssetBrowser;
+module.exports = CSDKAssetBrowser;
