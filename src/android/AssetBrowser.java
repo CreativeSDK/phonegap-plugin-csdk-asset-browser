@@ -64,7 +64,33 @@ public class AssetBrowser extends CordovaPlugin {
     public CallbackContext callbackContext;
     private String downloadLocation;
 
-     /**
+    private IAdobeGenericRequestCallback<Boolean, AdobeAssetException> downloadCallBack = new IAdobeGenericRequestCallback<Boolean, AdobeAssetException>() {
+        @Override
+        public void onCancellation() {
+            Log.d(LOG_TAG, "Asset Browser Cancelled");
+            callbackContext.error("Asset Browser Cancelled");
+        }
+
+        @Override
+        public void onError(AdobeAssetException e) {
+            Log.d(LOG_TAG, "Asset Browser Error: " + e.getLocalizedMessage());
+            callbackContext.error("Asset Browser Error: " + e.getLocalizedMessage());
+        }
+
+        @Override
+        public void onProgress(double v) {
+            Log.d(LOG_TAG, "Progress: " + v);
+        }
+
+        @Override
+        public void onCompletion(Boolean aBoolean) {
+            Log.d(LOG_TAG, "Yay");
+            callbackContext.success(downloadLocation);
+        }
+    };
+
+
+    /**
      * Executes the request and returns PluginResult.
      *
      * @param action            The action to execute.
@@ -153,31 +179,6 @@ public class AssetBrowser extends CordovaPlugin {
     }
 
     private void downloadSelectionAssetFile(AdobeSelectionAssetFile selectionAssetFile) {
-        IAdobeGenericRequestCallback<Boolean, AdobeAssetException> downloadCallBack = new IAdobeGenericRequestCallback<Boolean, AdobeAssetException>() {
-            @Override
-            public void onCancellation() {
-                Log.d(LOG_TAG, "Asset Browser Cancelled");
-                callbackContext.error("Asset Browser Cancelled");
-            }
-
-            @Override
-            public void onError(AdobeAssetException e) {
-                Log.d(LOG_TAG, "Asset Browser Error: " + e.getLocalizedMessage());
-                callbackContext.error("Asset Browser Error: " + e.getLocalizedMessage());
-            }
-
-            @Override
-            public void onProgress(double v) {
-                Log.d(LOG_TAG, "Progress: " + v);
-            }
-
-            @Override
-            public void onCompletion(Boolean aBoolean) {
-                Log.d(LOG_TAG, "Yay");
-                callbackContext.success(downloadLocation);
-            }
-        };
-
         AdobeAssetFile asset = selectionAssetFile.getSelectedItem();
 
         // if no download location specified use default
