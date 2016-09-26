@@ -67,7 +67,36 @@ var CSDKAssetBrowser = {
             If omitted, JPEG is the default.
     */
     downloadFiles: function(successCallback, failureCallback, options) {
-        exec(successCallback, failureCallback, 'CSDKAssetBrowser', 'downloadFiles', [ options ]);
+        options = options || {};
+        var dataSourceTypes = CSDKAssetBrowser.getDataSources(options.dataSource);
+        exec(successCallback, failureCallback, 'CSDKAssetBrowser', 'downloadFiles', [ dataSourceTypes ]);
+    },
+
+    /** @private */
+    getDataSources: function(types) {
+        var validTypes = [];
+        if (types) {
+            for(var i=0; i<types.length; i++) {
+                if (types[i] >= 0 && types[i] <= 6) {
+                    validTypes.push(types[i]);
+                }
+            }
+        }
+        return validTypes;
+    },
+
+    /**
+     * @readonly
+     * @enum {number}
+     */
+    DataSourceType:{
+        COMPOSITIONS: 0,
+        DRAW: 1,
+        FILES: 2,
+        LIBRARY: 3,
+        PHOTOS: 4,
+        PSMIX: 5,
+        SKETCHES: 6
     }
 };
 

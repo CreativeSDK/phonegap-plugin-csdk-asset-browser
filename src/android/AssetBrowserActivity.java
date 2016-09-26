@@ -15,20 +15,62 @@ import com.adobe.creativesdk.foundation.storage.AdobeAssetDataSourceType;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 public class AssetBrowserActivity extends Activity {
     private static final String LOG_TAG = "CreativeSDK_AssetBrowserActivity";
+
+    // Data Source types
+    private static final int COMPOSITIONS = 0;
+    private static final int DRAW = 1;
+    private static final int FILES = 2;
+    private static final int LIBRARY = 3;
+    private static final int PHOTOS = 4;
+    private static final int PSMIX = 5;
+    private static final int SKETCHES = 6;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        int[] dataSources = getIntent().getIntArrayExtra("dataSources");
+        Log.d(LOG_TAG, "data sources: " + dataSources.length);
+        LinkedList<AdobeAssetDataSourceType> sources = new LinkedList<AdobeAssetDataSourceType>();
+        for (int i=0; i<dataSources.length; i++) {
+            switch(dataSources[i]) {
+                case COMPOSITIONS:
+                    sources.add(AdobeAssetDataSourceType.AdobeAssetDataSourceCompositions);
+                    break;
+                case DRAW:
+                    sources.add(AdobeAssetDataSourceType.AdobeAssetDataSourceDraw);
+                    break;
+                case FILES:
+                    sources.add(AdobeAssetDataSourceType.AdobeAssetDataSourceFiles);
+                    break;
+                case LIBRARY:
+                    sources.add(AdobeAssetDataSourceType.AdobeAssetDataSourceLibrary);
+                    break;
+                case PHOTOS:
+                    sources.add(AdobeAssetDataSourceType.AdobeAssetDataSourcePhotos);
+                    break;
+                case PSMIX:
+                    sources.add(AdobeAssetDataSourceType.AdobeAssetDataSourcePSMix);
+                    break;
+                case SKETCHES:
+                    sources.add(AdobeAssetDataSourceType.AdobeAssetDataSourceSketches);
+                    break;
+            }
+        }
+
         AdobeUXAssetBrowser assetBrowser = AdobeUXAssetBrowser.getSharedInstance();
         AdobeUXAssetBrowserConfiguration configuration = new AdobeUXAssetBrowserConfiguration();
-        configuration.dataSourceFilter = AdobeAssetDataSourceFilter.createFromDataSources(
-            EnumSet.of(AdobeAssetDataSourceType.AdobeAssetDataSourceFiles),
-            AdobeAssetDataSourceFilterType.ADOBE_ASSET_DATASOURCE_FILTER_INCLUSION
-        );
+        if (sources.size() > 0) {
+            configuration.dataSourceFilter = AdobeAssetDataSourceFilter.createFromDataSources(
+                    EnumSet.copyOf(sources),
+                    AdobeAssetDataSourceFilterType.ADOBE_ASSET_DATASOURCE_FILTER_INCLUSION
+            );
+        }
 
         try {
             assetBrowser.popupFileBrowser(this, 300, configuration);

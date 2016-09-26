@@ -76,8 +76,17 @@ public class AssetBrowser extends CordovaPlugin {
         this.callbackContext = callbackContext;
 
         if (action.equals("downloadFiles")) {
+            // setup data source types
+            JSONArray dataSourceTypes = args.getJSONArray(0);
+            int typeLength = dataSourceTypes.length();
+            int[] sources = new int[typeLength];
+            for (int i=0; i<typeLength; i++) {
+                sources[i] = dataSourceTypes.getInt(i);
+            }
+
             Intent i = new Intent(cordova.getActivity(), AssetBrowserActivity.class);
             i.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            i.putExtra("dataSources", sources);
             cordova.startActivityForResult(this, i, 0);
 
             PluginResult r = new PluginResult(PluginResult.Status.NO_RESULT);

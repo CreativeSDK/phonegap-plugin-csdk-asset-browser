@@ -36,4 +36,36 @@ describe('phonegap-plugin-csdk-asset-browser', function () {
             expect(typeof CSDKAssetBrowser.downloadFiles === 'function').toBe(true);
         });
     });
+
+    describe('Data Source Type', function() {
+        it('should contain a getDataSources function', function () {
+            expect(CSDKAssetBrowser.getDataSources).toBeDefined();
+            expect(typeof CSDKAssetBrowser.getDataSources === 'function').toBe(true);
+        });
+
+        it('should contain the DataSourceType constants', function () {
+            expect(CSDKAssetBrowser.DataSourceType.COMPOSITIONS).toBe(0);
+            expect(CSDKAssetBrowser.DataSourceType.DRAW).toBe(1);
+            expect(CSDKAssetBrowser.DataSourceType.FILES).toBe(2);
+            expect(CSDKAssetBrowser.DataSourceType.LIBRARY).toBe(3);
+            expect(CSDKAssetBrowser.DataSourceType.PHOTOS).toBe(4);
+            expect(CSDKAssetBrowser.DataSourceType.PSMIX).toBe(5);
+            expect(CSDKAssetBrowser.DataSourceType.SKETCHES).toBe(6);
+        });
+
+        it('empty array should be valid', function() {
+            expect(CSDKAssetBrowser.getDataSources([]).length).toBe(0);
+        });
+
+        it('should be valid', function() {
+            expect(CSDKAssetBrowser.getDataSources([CSDKAssetBrowser.DataSourceType.COMPOSITIONS]).length).toBe(1);
+            expect(CSDKAssetBrowser.getDataSources([CSDKAssetBrowser.DataSourceType.COMPOSITIONS, CSDKAssetBrowser.DataSourceType.DRAW]).length).toBe(2);
+        });
+
+        it('should remove invalid values', function() {
+            expect(CSDKAssetBrowser.getDataSources([-1]).length).toBe(0);
+            expect(CSDKAssetBrowser.getDataSources([7]).length).toBe(0);
+            expect(CSDKAssetBrowser.getDataSources([CSDKAssetBrowser.DataSourceType.COMPOSITIONS, 42, CSDKAssetBrowser.DataSourceType.DRAW]).length).toBe(2);
+        });
+    });
 });
