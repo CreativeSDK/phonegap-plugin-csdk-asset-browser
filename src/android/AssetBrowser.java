@@ -168,7 +168,9 @@ public class AssetBrowser extends CordovaPlugin {
 
         AdobeAssetFile asset = selectionAssetFile.getSelectedItem();
 
-        downloadLocation = (new File(Environment.getExternalStorageDirectory(), "a.png")).getAbsolutePath();
+        //downloadLocation = (new File(Environment.getExternalStorageDirectory(), "a.png")).getAbsolutePath();
+        downloadLocation = (new File(cordova.getActivity().getFilesDir(), "a.png")).getAbsolutePath();
+        Log.d(LOG_TAG, downloadLocation);
 
         URI external = null;
         try {
