@@ -69,7 +69,8 @@ var CSDKAssetBrowser = {
     downloadFiles: function(successCallback, failureCallback, options) {
         options = options || {};
         var dataSourceTypes = CSDKAssetBrowser.getDataSources(options.dataSource);
-        exec(successCallback, failureCallback, 'CSDKAssetBrowser', 'downloadFiles', [ dataSourceTypes ]);
+        var outputFile = options.outputFile || '';
+        exec(successCallback, failureCallback, 'CSDKAssetBrowser', 'downloadFiles', [ dataSourceTypes, outputFile ]);
     },
 
     /** @private */

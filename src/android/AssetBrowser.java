@@ -62,7 +62,7 @@ public class AssetBrowser extends CordovaPlugin {
     private static final String LOG_TAG = "CreativeSDK_AssetBrowser";
 
     public CallbackContext callbackContext;
-    public String downloadLocation;
+    private String downloadLocation;
 
      /**
      * Executes the request and returns PluginResult.
@@ -83,6 +83,9 @@ public class AssetBrowser extends CordovaPlugin {
             for (int i=0; i<typeLength; i++) {
                 sources[i] = dataSourceTypes.getInt(i);
             }
+
+            // setup output file name
+            downloadLocation = args.getString(1);
 
             Intent i = new Intent(cordova.getActivity(), AssetBrowserActivity.class);
             i.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -177,8 +180,11 @@ public class AssetBrowser extends CordovaPlugin {
 
         AdobeAssetFile asset = selectionAssetFile.getSelectedItem();
 
-        //downloadLocation = (new File(Environment.getExternalStorageDirectory(), "a.png")).getAbsolutePath();
-        downloadLocation = (new File(cordova.getActivity().getFilesDir(), "a.png")).getAbsolutePath();
+        // if no download location specified use default
+        if ("".equals(downloadLocation)) {
+            downloadLocation = (new File(cordova.getActivity().getFilesDir(), asset.getName())).getAbsolutePath();
+        }
+
         Log.d(LOG_TAG, downloadLocation);
 
         URI external = null;
