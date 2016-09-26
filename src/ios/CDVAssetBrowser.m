@@ -17,6 +17,8 @@
  under the License.
  */
 
+#import <AdobeCreativeSDKCore/AdobeCreativeSDKCore.h>
+#import <AdobeCreativeSDKAssetModel/AdobeCreativeSDKAssetModel.h>
 #import <AdobeCreativeSDKAssetUX/AdobeCreativeSDKAssetUX.h>
 #import <Cordova/CDV.h>
 #import "CDVAssetBrowser.h"
@@ -27,6 +29,7 @@
 
 - (void) getFileMetadata:(CDVInvokedUrlCommand*)command
 {
+    /*
     __weak CDVPlugin* weakSelf = self;
 
     void(^getSuccess)(AdobeSelectionAssetArray*)= ^(AdobeSelectionAssetArray* items) {
@@ -53,10 +56,31 @@
              getFailure([error localizedDescription]);
          }
     ];
+     */
 }
 
 - (void) downloadFiles:(CDVInvokedUrlCommand*)command
 {
+    // Create a datasource filter object that excludes the Libraries and Photos datasources. For
+    // the purposes of this demo, we'll only deal with non-complex datasources like the Files
+    // datasource.
+    AdobeAssetDataSourceFilter *dataSourceFilter =
+    [[AdobeAssetDataSourceFilter alloc] initWithDataSources:@[AdobeAssetDataSourceLibrary, AdobeAssetDataSourcePhotos]
+                                                 filterType:AdobeAssetDataSourceFilterExclusive];
+
+    // Create an Asset Browser configuration object and set the datasource filter object.
+    AdobeUXAssetBrowserConfiguration *assetBrowserConfiguration = [AdobeUXAssetBrowserConfiguration new];
+    assetBrowserConfiguration.dataSourceFilter = dataSourceFilter;
+
+    // Create an instance of the Asset Browser view controller
+    AdobeUXAssetBrowserViewController *assetBrowserViewController =
+    [AdobeUXAssetBrowserViewController assetBrowserViewControllerWithConfiguration:assetBrowserConfiguration
+                                                                          delegate:self];
+
+    // Present the Asset Browser view controller
+    [self.viewController presentViewController:assetBrowserViewController animated:YES completion:nil];
+
+    /*
     __weak CDVPlugin* weakSelf = self;
 
     NSDictionary* options = [command.arguments firstObject];
@@ -160,6 +184,7 @@
             downloadFailure(nil, [error localizedDescription]);
         }
     ];
+     */
 }
 
 @end

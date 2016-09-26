@@ -64,6 +64,15 @@
         <header-file src="src/ios/CDVAssetBrowser.h" />
         <source-file src="src/ios/CDVAssetBrowser.m" />
 
+        <!--
+        AdobeCreativeSDKCore.framework - client auth
+        AdobeCreativeSDKCommonUX.framework
+        AdobeCreativeSDKAssetModel.framework - user auth
+        AdobeCreativeSDKAssetUX.framework
+        -->
+
+        <resource-file src="src/ios/AdobeCreativeSDKFrameworks/AdobeCreativeSDKCommonUX.framework/Versions/A/Resources/AdobeCreativeSDKCommonUXResources.bundle" />
+        <framework src="src/ios/AdobeCreativeSDKFrameworks/AdobeCreativeSDKCommonUX.framework" custom="true" />
         <resource-file src="src/ios/AdobeCreativeSDKFrameworks/AdobeCreativeSDKAssetUX.framework/Versions/A/Resources/AdobeCreativeSDKAssetUXResources.bundle" />
         <framework src="src/ios/AdobeCreativeSDKFrameworks/AdobeCreativeSDKAssetUX.framework" custom="true" />
     </platform>
