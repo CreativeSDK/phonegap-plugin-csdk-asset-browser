@@ -78,7 +78,7 @@ var CSDKAssetBrowser = {
         var validTypes = [];
         if (types) {
             for(var i=0; i<types.length; i++) {
-                if (types[i] >= 0 && types[i] <= 6) {
+                if (types[i] >= 0 && types[i] <= 8) {
                     validTypes.push(types[i]);
                 }
             }
@@ -97,7 +97,9 @@ var CSDKAssetBrowser = {
         LIBRARY: 3,
         PHOTOS: 4,
         PSMIX: 5,
-        SKETCHES: 6
+        SKETCHES: 6,
+        LINE: 7,
+        BRUSH: 8
     }
 };
 

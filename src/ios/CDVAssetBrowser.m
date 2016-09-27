@@ -23,6 +23,8 @@
 #import <Cordova/CDV.h>
 #import "CDVAssetBrowser.h"
 
+#define ADB_PHOTO_PREFIX @"adb_photo_"
+
 @implementation CDVAssetBrowser
 
 @synthesize callbackId;
@@ -61,12 +63,23 @@
 
 - (void) downloadFiles:(CDVInvokedUrlCommand*)command
 {
+    self.callbackId = command.callbackId;
+
+    NSArray *dataSources = [self createDataSourceArray:[command.arguments objectAtIndex:0]];
+
     // Create a datasource filter object that excludes the Libraries and Photos datasources. For
     // the purposes of this demo, we'll only deal with non-complex datasources like the Files
     // datasource.
-    AdobeAssetDataSourceFilter *dataSourceFilter =
-    [[AdobeAssetDataSourceFilter alloc] initWithDataSources:@[AdobeAssetDataSourceLibrary, AdobeAssetDataSourcePhotos]
-                                                 filterType:AdobeAssetDataSourceFilterExclusive];
+    AdobeAssetDataSourceFilter *dataSourceFilter = nil;
+    if ([dataSources count] > 0) {
+        NSLog((@"include"));
+        dataSourceFilter = [[AdobeAssetDataSourceFilter alloc] initWithDataSources:dataSources
+                                                                        filterType:AdobeAssetDataSourceFilterInclusive];
+    } else {
+        NSLog((@"exclude"));
+        dataSourceFilter = [[AdobeAssetDataSourceFilter alloc] initWithDataSources:dataSources
+                                                                        filterType:AdobeAssetDataSourceFilterExclusive];
+    }
 
     // Create an Asset Browser configuration object and set the datasource filter object.
     AdobeUXAssetBrowserConfiguration *assetBrowserConfiguration = [AdobeUXAssetBrowserConfiguration new];
@@ -79,112 +92,169 @@
 
     // Present the Asset Browser view controller
     [self.viewController presentViewController:assetBrowserViewController animated:YES completion:nil];
+}
 
+- (void)assetBrowserDidSelectAssets:(AdobeSelectionAssetArray *)itemSelections
+{
+    [self.viewController dismissViewControllerAnimated:YES completion:nil];
+
+    if (itemSelections.count == 0)
+    {
+        // Nothing selected so there is nothing to do.
+        return;
+    }
+
+    NSLog(@"yay, something selected");
+
+    // Get the first asset-selection object.
+    AdobeSelectionAsset *assetSelection = itemSelections.firstObject;
+
+    // Grab the generic AdobeAsset object from the selection object.
+    AdobeAsset *selectedAsset = assetSelection.selectedItem;
+
+
+    // Make sure it's an AdobeAssetFile object.
+    if (!IsAdobeAssetFile(selectedAsset))
+    {
+        return;
+    }
+
+    AdobeAssetFile *selectedAssetFile = (AdobeAssetFile *)selectedAsset;
+
+    // Download a thumbnail for common image formats
+    if ([selectedAssetFile.type isEqualToString:kAdobeMimeTypeJPEG] ||
+        [selectedAssetFile.type isEqualToString:kAdobeMimeTypePNG] ||
+        [selectedAssetFile.type isEqualToString:kAdobeMimeTypeGIF] ||
+        [selectedAssetFile.type isEqualToString:kAdobeMimeTypeBMP])
+    {
+        [selectedAssetFile downloadData:NSOperationQueuePriorityNormal
+                          progressBlock:^(double fractionCompleted) {
+                                           NSLog(@"Progress: %f", fractionCompleted);
+                                       }
+                           successBlock:^(NSData *data, BOOL fromCache) {
+             NSLog(@"Successfully downloaded a thumbnail.");
+
+             CDVPluginResult *pluginResult = nil;
+             NSString* filePath = [self tempFilePath:@"png"];
+             NSError* err = nil;
+
+             NSLog(@"file path %@", filePath);
+
+             // save file
+             if (![data writeToFile:filePath options:NSAtomicWrite error:&err]) {
+                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_IO_EXCEPTION messageAsString:[err localizedDescription]];
+             } else {
+                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:[[NSURL fileURLWithPath:filePath] absoluteString]];
+             }
+
+             [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
+         } cancellationBlock:^{
+             NSLog(@"The rendition request was cancelled.");
+
+             CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"Cancelled"]];
+             [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
+         } errorBlock:^(NSError *error) {
+             NSLog(@"There was a problem downloading the file rendition: %@", error);
+
+             CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"%@", error]];
+             [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
+         } ];
+    }
     /*
-    __weak CDVPlugin* weakSelf = self;
+    else
+    {
+        NSString *message = @"The selected file type isn't a common image format so no "
+        "thumbnail will be fetched from the server.\n\nTry selecting a JPEG, PNG or BMP file.";
 
-    NSDictionary* options = [command.arguments firstObject];
-    CGSize renditionSize = FULL_SIZE_RENDITION;
-    AdobeAssetFileRenditionType renditionType = AdobeAssetFileRenditionTypeJPEG;
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Demo Project"
+                                                                                 message:message
+                                                                          preferredStyle:UIAlertControllerStyleAlert];
 
-    if (options != nil && [options isKindOfClass:[NSDictionary class]]) {
-        NSNumber* rWidth = [options objectForKey:@"width"];
-        NSNumber* rHeight = [options objectForKey:@"height"];
-        NSNumber* rType = [options objectForKey:@"type"];
+        UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"OK"
+                                                           style:UIAlertActionStyleDefault
+                                                         handler:NULL];
 
-        if (rType != nil) {
-            renditionType = [rType integerValue];
-        }
+        [alertController addAction:okAction];
 
-        if (rWidth != nil && rHeight != nil) {
-            renditionSize = CGSizeMake([rWidth floatValue], [rHeight floatValue]);
+        [self presentViewController:alertController animated:YES completion:nil];
+    }
+     */
+}
+
+- (void)assetBrowserDidEncounterError:(NSError *)error
+{
+    [self.viewController dismissViewControllerAnimated:YES completion:nil];
+
+    NSLog(@"An error occurred: %@", error);
+
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[error localizedDescription]];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
+
+}
+
+- (void)assetBrowserDidClose
+{
+    NSLog(@"User closed the Asset Browser view controller.");
+
+    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"User clicked closed"];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
+}
+
+
+- (NSString*)tempFilePath:(NSString*)extension
+{
+    NSString* docsPath = [NSTemporaryDirectory()stringByStandardizingPath];
+    NSFileManager* fileMgr = [[NSFileManager alloc] init]; // recommended by Apple (vs [NSFileManager defaultManager]) to be threadsafe
+    NSString* filePath;
+
+    // generate unique file name
+    int i = 1;
+    do {
+        filePath = [NSString stringWithFormat:@"%@/%@%03d.%@", docsPath, ADB_PHOTO_PREFIX, i++, extension];
+    } while ([fileMgr fileExistsAtPath:filePath]);
+
+    return filePath;
+}
+
+- (NSArray*) createDataSourceArray:(NSArray*)sourceOptions
+{
+    NSMutableArray *sources = [NSMutableArray array];
+
+    for (NSNumber *tempNumber in sourceOptions) {
+        int toolId = [tempNumber integerValue];
+        NSLog(@"Single element: %d", toolId);
+        switch(toolId){
+            case DataSourceTypeDraw:
+                [sources addObject: AdobeAssetDataSourceDraw];
+                break;
+            case DataSourceTypeLine:
+                [sources addObject: AdobeAssetDataSourceLine];
+                break;
+            case DataSourceTypePhotos:
+                [sources addObject: AdobeAssetDataSourcePhotos];
+                break;
+            case DataSourceTypePSMix:
+                [sources addObject: AdobeAssetDataSourceMix];
+                break;
+            case DataSourceTypeFiles:
+                [sources addObject: AdobeAssetDataSourceFiles];
+                break;
+            case DataSourceTypeComp:
+                [sources addObject: AdobeAssetDataSourceCompCC];
+                break;
+            case DataSourceTypeSketch:
+                [sources addObject: AdobeAssetDataSourceSketch];
+                break;
+            case DataSourceTypeBrush:
+                [sources addObject: AdobeAssetDataSourceBrushCC];
+                break;
+            default:
+                // Ignore any source not from the above
+                break;
         }
     }
 
-    void(^downloadFailure)(NSString*, NSString*)= ^(NSString* href, NSString* errorMessage) {
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"%@ (%@)", errorMessage, href]];
-        [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
-        [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    };
-
-    void(^downloadInit)(NSString*, AdobeAssetFile*)= ^(NSString* href, AdobeAssetFile* assetFile) {
-        NSDictionary* dict = @{
-            @"href" : href,
-            @"metadata" : [assetFile propertiesAsDictionary]
-        };
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
-                                                           messageAsDictionary:dict];
-        [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
-        [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    };
-
-    void(^downloadProgress)(NSString*, double)= ^(NSString* href, double fractionCompleted) {
-        NSDictionary* dict = @{
-            @"href" : href,
-            @"fractionCompleted" : [NSNumber numberWithDouble:fractionCompleted]
-        };
-
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
-                                                      messageAsDictionary:dict];
-        [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
-        [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    };
-
-    void(^downloadCompleted)(NSString*, NSData*, BOOL)= ^(NSString* href, NSData* data, BOOL fromCache) {
-        // Save the file to NSTemporaryDirectory() location, with uuid filename
-        CFUUIDRef uuidRef = CFUUIDCreate(kCFAllocatorDefault);
-        CFStringRef uuidString = CFUUIDCreateString(kCFAllocatorDefault, uuidRef);
-        NSString* filePath = [NSString stringWithFormat:@"%@/%@", [NSTemporaryDirectory() stringByStandardizingPath], uuidString];
-        CFRelease(uuidString);
-        CFRelease(uuidRef);
-
-        [data writeToFile:filePath atomically:YES];
-        NSURL* fileURL = [NSURL fileURLWithPath:filePath];
-
-        NSDictionary* dict = @{
-            @"href" : href,
-            @"result" : [fileURL absoluteString],
-            @"cached" : [NSNumber numberWithBool:fromCache]
-        };
-
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
-                                                      messageAsDictionary:dict];
-        [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    };
-
-    [[AdobeUXAssetBrowser sharedBrowser]
-        popupFileBrowserWithParent:self.viewController withExclusionList:nil
-        onSuccess: ^(NSArray* itemSelections) {
-            AdobeSelectionAsset* itemSelection = [itemSelections lastObject];
-            AdobeAsset* item = (AdobeAsset*)itemSelection.selectedItem;
-
-            if (IsAdobeAssetFile(item)) {
-                AdobeAssetFile* file = (AdobeAssetFile*)item;
-                downloadInit(file.href, file);
-
-                [file getRenditionWithType: renditionType
-                               withSize: renditionSize
-                           withPriority: NSOperationQueuePriorityNormal
-                        onProgress: ^(double fractionCompleted) {
-                            downloadProgress(file.href, fractionCompleted);
-                        }
-                        onCompletion: ^(NSData* data, BOOL fromCache) {
-                            downloadCompleted(file.href, data, fromCache);
-                        }
-                        onCancellation:^ {
-                            downloadFailure(file.href, @"Cancelled");
-                        }
-                        onError:^(NSError* error) {
-                            downloadFailure(file.href, [error localizedDescription]);
-                        }
-                ];
-            }
-        }
-        onError:^(NSError* error) {
-            downloadFailure(nil, [error localizedDescription]);
-        }
-    ];
-     */
+    return [sources copy];
 }
 
 @end

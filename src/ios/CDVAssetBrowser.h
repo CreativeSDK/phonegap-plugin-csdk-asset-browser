@@ -1,5 +1,17 @@
 #import <Cordova/CDVPlugin.h>
 
+enum CDVDataSourceType {
+    DataSourceTypeComp = 0,
+    DataSourceTypeDraw,
+    DataSourceTypeFiles,
+    DataSourceTypeLibrary,
+    DataSourceTypePhotos,
+    DataSourceTypePSMix,
+    DataSourceTypeSketch,
+    DataSourceTypeLine,
+    DataSourceTypeBrush
+};
+typedef NSUInteger CDVDataSourceType;
 
 @interface CDVAssetBrowser : CDVPlugin
 {

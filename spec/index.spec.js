@@ -51,6 +51,8 @@ describe('phonegap-plugin-csdk-asset-browser', function () {
             expect(CSDKAssetBrowser.DataSourceType.PHOTOS).toBe(4);
             expect(CSDKAssetBrowser.DataSourceType.PSMIX).toBe(5);
             expect(CSDKAssetBrowser.DataSourceType.SKETCHES).toBe(6);
+            expect(CSDKAssetBrowser.DataSourceType.LINE).toBe(7);
+            expect(CSDKAssetBrowser.DataSourceType.BRUSH).toBe(8);
         });
 
         it('empty array should be valid', function() {
@@ -64,7 +66,7 @@ describe('phonegap-plugin-csdk-asset-browser', function () {
 
         it('should remove invalid values', function() {
             expect(CSDKAssetBrowser.getDataSources([-1]).length).toBe(0);
-            expect(CSDKAssetBrowser.getDataSources([7]).length).toBe(0);
+            expect(CSDKAssetBrowser.getDataSources([9]).length).toBe(0);
             expect(CSDKAssetBrowser.getDataSources([CSDKAssetBrowser.DataSourceType.COMPOSITIONS, 42, CSDKAssetBrowser.DataSourceType.DRAW]).length).toBe(2);
         });
     });
