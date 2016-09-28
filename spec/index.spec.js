@@ -35,6 +35,11 @@ describe('phonegap-plugin-csdk-asset-browser', function () {
             expect(CSDKAssetBrowser.downloadFiles).toBeDefined();
             expect(typeof CSDKAssetBrowser.downloadFiles === 'function').toBe(true);
         });
+
+        it('should contain a uploadFile function', function () {
+            expect(CSDKAssetBrowser.uploadFile).toBeDefined();
+            expect(typeof CSDKAssetBrowser.uploadFile === 'function').toBe(true);
+        });
     });
 
     describe('Data Source Type', function() {

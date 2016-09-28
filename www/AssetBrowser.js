@@ -73,6 +73,13 @@ var CSDKAssetBrowser = {
         exec(successCallback, failureCallback, 'CSDKAssetBrowser', 'downloadFiles', [ dataSourceTypes, outputFile ]);
     },
 
+    uploadFile: function(successCallback, failureCallback, url, options) {
+        options = options || {};
+        var uploadName = options.uploadName || '';
+        var overwrite = !!options.overwrite;
+        exec(successCallback, failureCallback, 'CSDKAssetBrowser', 'uploadFile', [ url, uploadName, overwrite ]);
+    },
+
     /** @private */
     getDataSources: function(types) {
         var validTypes = [];

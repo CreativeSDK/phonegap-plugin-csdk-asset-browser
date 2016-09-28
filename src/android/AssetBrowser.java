@@ -22,22 +22,28 @@ package com.adobe.phonegap.csdk;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.PluginResult;
+import org.apache.cordova.camera.*;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.os.Environment;
+import android.net.Uri;
 import android.util.Log;
+import android.webkit.MimeTypeMap;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 
 import com.adobe.creativesdk.foundation.storage.AdobeAssetException;
 import com.adobe.creativesdk.foundation.storage.AdobeAssetFile;
+import com.adobe.creativesdk.foundation.storage.AdobeAssetFolder;
 import com.adobe.creativesdk.foundation.storage.AdobePhotoAsset;
 import com.adobe.creativesdk.foundation.storage.AdobePhotoException;
 import com.adobe.creativesdk.foundation.storage.AdobePhotoAssetRendition;
@@ -89,6 +95,45 @@ public class AssetBrowser extends CordovaPlugin {
         }
     };
 
+    private IAdobeGenericRequestCallback<AdobeAssetFile, AdobeCSDKException> uploadCallback = new IAdobeGenericRequestCallback<AdobeAssetFile, AdobeCSDKException>() {
+        @Override
+        public void onCancellation() {
+            Log.d(LOG_TAG, "Upload Cancelled");
+            callbackContext.error("Upload Cancelled");
+        }
+
+        @Override
+        public void onError(AdobeCSDKException e) {
+            Log.d(LOG_TAG, "Asset Browser Upload Error: " + e.getLocalizedMessage());
+            Log.e(LOG_TAG, e.getLocalizedMessage(), e);
+            callbackContext.error("Asset Browser Upload Error: " + e.getLocalizedMessage());
+        }
+
+        @Override
+        public void onProgress(double v) {
+            Log.d(LOG_TAG, "Upload Progress: " + v);
+        }
+
+        @Override
+        public void onCompletion(AdobeAssetFile file) {
+            Log.d(LOG_TAG, "Yay");
+            JSONObject obj = new JSONObject();
+
+            try {
+                obj.put("created", file.getCreationDate());
+                obj.put("guid", file.getGUID());
+                obj.put("href", file.getHref());
+                obj.put("md5", file.getMd5Hash());
+                obj.put("modified", file.getModificationDate());
+                obj.put("type", file.getType());
+                obj.put("version", file.getCurrentVersion());
+            } catch(JSONException e) {
+                // never happens
+            }
+
+            callbackContext.success(obj);
+        }
+    };
 
     /**
      * Executes the request and returns PluginResult.
@@ -106,7 +151,7 @@ public class AssetBrowser extends CordovaPlugin {
             JSONArray dataSourceTypes = args.getJSONArray(0);
             int typeLength = dataSourceTypes.length();
             int[] sources = new int[typeLength];
-            for (int i=0; i<typeLength; i++) {
+            for (int i = 0; i < typeLength; i++) {
                 sources[i] = dataSourceTypes.getInt(i);
             }
 
@@ -121,6 +166,24 @@ public class AssetBrowser extends CordovaPlugin {
             PluginResult r = new PluginResult(PluginResult.Status.NO_RESULT);
             r.setKeepCallback(true);
             callbackContext.sendPluginResult(r);
+        } else if (action.equals("uploadFile")) {
+            String url = args.getString(0);
+            URL assetUrl = !url.startsWith("content") ? createURL(url) : createURL(FileHelper.getRealPath(cordova.getActivity(), Uri.parse(url)));
+            String filename = assetUrl.getFile();
+            String mimeType = FileHelper.getMimeType(url, cordova);
+            String uploadName = args.getString(1);
+            if (uploadName == null || "".equals(uploadName)) {
+                uploadName = filename;
+            }
+            boolean overwrite = args.getBoolean(2);
+
+            Log.d(LOG_TAG, "url: " + url);
+            Log.d(LOG_TAG, "filename: " + filename);
+            Log.d(LOG_TAG, "mimeType: " + mimeType);
+            Log.d(LOG_TAG, "uploadName: " + uploadName);
+
+            AdobeAssetFile.create(uploadName, AdobeAssetFolder.getRoot(), assetUrl, mimeType, uploadCallback, null);
+
         } else {
             return false;
         }
@@ -188,14 +251,28 @@ public class AssetBrowser extends CordovaPlugin {
 
         Log.d(LOG_TAG, downloadLocation);
 
+        asset.downloadAssetFile(createURI(downloadLocation), downloadCallBack);
+    }
+
+    private URI createURI(String url) {
         URI external = null;
         try {
-            external = new URI("file://" + downloadLocation);
+            external = url.startsWith("file://") ? new URI(url) : new URI("file://" + url);
         } catch (URISyntaxException e) {
             Log.e(LOG_TAG, e.getLocalizedMessage(), e);
         }
+        return external;
+    }
 
-        asset.downloadAssetFile(external, downloadCallBack);
+
+    private URL createURL(String url) {
+        URL external = null;
+        try {
+            external = url.startsWith("file://") ? new URL(url) : new URL("file://" + url);
+        } catch (MalformedURLException e) {
+            Log.e(LOG_TAG, e.getLocalizedMessage(), e);
+        }
+        return external;
     }
 
     private AdobeSelection getSelection(Intent data) {
@@ -203,5 +280,10 @@ public class AssetBrowser extends CordovaPlugin {
         ArrayList listOfSelectedAssetFiles = assetBrowserResult.getSelectionAssetArray();
         Log.d(LOG_TAG, "list = " + listOfSelectedAssetFiles.size());
         return (AdobeSelection) listOfSelectedAssetFiles.get(0);
+    }
+
+    private static String getMimeType(String fileUrl) {
+        String extension = MimeTypeMap.getFileExtensionFromUrl(fileUrl);
+        return MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
     }
 }

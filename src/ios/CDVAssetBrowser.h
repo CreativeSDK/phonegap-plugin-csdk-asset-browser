@@ -13,6 +13,7 @@ enum CDVDataSourceType {
 };
 typedef NSUInteger CDVDataSourceType;
 
+
 @interface CDVAssetBrowser : CDVPlugin
 {
     NSString *callbackId;
@@ -22,5 +23,6 @@ typedef NSUInteger CDVDataSourceType;
 
 - (void)getFileMetadata:(CDVInvokedUrlCommand*)command;
 - (void)downloadFiles:(CDVInvokedUrlCommand*)command;
+- (void)uploadFile:(CDVInvokedUrlCommand*)command;
 
 @end

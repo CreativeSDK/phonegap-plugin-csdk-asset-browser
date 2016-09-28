@@ -17,6 +17,7 @@
  under the License.
  */
 
+#import <MobileCoreServices/MobileCoreServices.h>
 #import <AdobeCreativeSDKCore/AdobeCreativeSDKCore.h>
 #import <AdobeCreativeSDKAssetModel/AdobeCreativeSDKAssetModel.h>
 #import <AdobeCreativeSDKAssetUX/AdobeCreativeSDKAssetUX.h>
@@ -92,6 +93,74 @@
 
     // Present the Asset Browser view controller
     [self.viewController presentViewController:assetBrowserViewController animated:YES completion:nil];
+}
+
+- (void) uploadFile:(CDVInvokedUrlCommand *)command
+{
+    self.callbackId = command.callbackId;
+
+    NSURL *assetURL = [NSURL URLWithString:[command.arguments objectAtIndex:0]];
+    NSString *filename = [assetURL lastPathComponent];
+    NSString *mimeType = [self fileMIMEType:filename];
+    NSString *uploadName = [command.arguments objectAtIndex:1];
+    if ([uploadName length] != 0) {
+        filename = uploadName;
+    }
+    BOOL overwrite = [[command argumentAtIndex:2 withDefault:@(YES)] boolValue];
+    AdobeAssetFileCollisionPolicy policy = overwrite ? AdobeAssetFileCollisionPolicyOverwriteWithNewVersion : AdobeAssetFileCollisionPolicyAppendUniqueNumber;
+
+    NSLog(@"url: %@", assetURL);
+    NSLog(@"filename: %@", filename);
+    NSLog(@"mimeType: %@", mimeType);
+    NSLog(@"uploadName: %@", uploadName);
+    NSLog(@"overwrite: %hhd", overwrite);
+
+    AdobeAssetFolder *selectedFolder = [AdobeAssetFolder root];
+
+    /**
+     * TODO:
+     *   folder to upload to
+     */
+    [AdobeAssetFile create:filename
+                    folder:selectedFolder
+                  dataPath:assetURL
+               contentType:mimeType
+           collisionPolicy: policy
+             progressBlock:^(double fractionCompleted) {
+                    NSLog(@"Progress: %f", fractionCompleted);
+         }
+              successBlock:^(AdobeAssetFile *file) {
+                    NSString *description = [file description];
+                    NSLog(@"Upload success: %@", description);
+
+                    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithCapacity:7];
+                    [dict setObject:[NSDateFormatter localizedStringFromDate:file.creationDate
+                                                                 dateStyle:NSDateFormatterShortStyle
+                                                                 timeStyle:NSDateFormatterFullStyle] forKey:@"created"];
+                    [dict setObject:file.GUID forKey:@"guid"];
+                    [dict setObject:file.href forKey:@"href"];
+                    [dict setObject:file.md5Hash forKey:@"md5"];
+                    [dict setObject:[NSDateFormatter localizedStringFromDate:file.modificationDate
+                                                                 dateStyle:NSDateFormatterShortStyle
+                                                                 timeStyle:NSDateFormatterFullStyle] forKey:@"modified"];
+                    [dict setObject:file.type forKey:@"type"];
+                    [dict setObject:[NSNumber numberWithInteger:file.currentVersion] forKey:@"version"];
+
+                    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:dict];
+                    [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
+         }
+         cancellationBlock:^{
+                    NSLog(@"The rendition request was cancelled.");
+
+                    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"Cancelled"]];
+                    [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
+         }
+                errorBlock:^(NSError *error){
+                    NSLog(@"The rendition request was cancelled.");
+
+                    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"%@", error]];
+                    [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
+        }];
 }
 
 - (void)assetBrowserDidSelectAssets:(AdobeSelectionAssetArray *)itemSelections
@@ -200,6 +269,13 @@
     [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
 }
 
+- (NSString*)fileMIMEType:(NSString*)file
+{
+    CFStringRef UTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (CFStringRef)CFBridgingRetain([file pathExtension]), NULL);
+    CFStringRef MIMEType = UTTypeCopyPreferredTagWithClass (UTI, kUTTagClassMIMEType);
+    CFRelease(UTI);
+    return (NSString *)CFBridgingRelease(MIMEType);
+}
 
 - (NSString*)tempFilePath:(NSString*)extension
 {
