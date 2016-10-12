@@ -25,47 +25,24 @@
 var exec = cordova.require('cordova/exec'),
     utils = cordova.require('cordova/utils');
 
+/**
+    @description A global object that lets you interact with the Creative SDK Asset Browser.
+    @global
+*/
 var CSDKAssetBrowser = {
-    /*
-    Gets metadata for your Creative Cloud file.
-
-    The successCallback will be called if the call was successful, and it will return
-    as its only argument, a JSON object with the metadata.
-
-    The failureCallback will be called if the call was unsuccessful, and it will return
-    as its only argument, an error message.
-    */
+    /** @private */
     getFileMetadata: function(successCallback, failureCallback) {
         exec(successCallback, failureCallback, 'CSDKAssetBrowser', 'getFileMetadata', []);
     },
 
-    /*
-    Download your Creative Cloud file.
-
-    The successCallback will be called if the call was successful and when the file is being
-    downloaded (progress), and it will return
-    as its only argument, a JSON object. Properties available:
-        href:
-            the href of the file
-        metadata:
-            the metadata object of the file (download start)
-        fractionCompleted:
-            number of bytes of the downloaded file that has been downloaded (download progress)
-        result:
-            the file URL of the downloaded file (download complete)
-
-    The failureCallback will be called if the call was unsuccessful, and it will return
-    as its only argument, an error message.
-
-    Pass in the options object to specify the size and type of the file returned. The
-    available keys are:
-         width, height:
-            If any dimension is omitted, the full-sized rendition of the file
-            will be returned.
-         type:
-            (JPEG = 0, PNG = 1, PDF = 2, GIF = 3, TIFF = 4).
-            If omitted, JPEG is the default.
-    */
+    /**
+     * @description Downloads a file from the Creative Cloud.
+     * @function downloadFiles
+     * @memberof CSDKAssetBrowser
+     * @param {!successCallback} successCallback - See type definition.
+     * @param {!errorCallback} errorCallback - See type definition.
+     * @param {?DownloadOptions} options An object containing optional property/value pairs.
+     */
     downloadFiles: function(successCallback, failureCallback, options) {
         options = options || {};
         var dataSourceTypes = CSDKAssetBrowser.getDataSources(options.dataSource);
@@ -73,6 +50,15 @@ var CSDKAssetBrowser = {
         exec(successCallback, failureCallback, 'CSDKAssetBrowser', 'downloadFiles', [ dataSourceTypes, outputFile ]);
     },
 
+    /**
+     * @description Uploads a file to the Creative Cloud.
+     * @function uploadFile
+     * @memberof CSDKAssetBrowser
+     * @param {!successCallback} successCallback - See type definition.
+     * @param {!errorCallback} errorCallback - See type definition.
+     * @param {!string} url path to the asset to be uploaded.
+     * @param {?UploadOptions} options An object containing optional property/value pairs.
+     */
     uploadFile: function(successCallback, failureCallback, url, options) {
         options = options || {};
         var uploadName = options.uploadName || '';
@@ -109,5 +95,30 @@ var CSDKAssetBrowser = {
         BRUSH: 8
     }
 };
+
+/**
+ * @description A callback to be used upon successful upload or download of an image.
+ *
+ * @callback successCallback
+ * @param {string} newUrl - The URL of the new downloaded image.
+ */
+
+/**
+ * @description A callback to handle errors when attempting to upload or download an image.
+ *
+ * @callback errorCallback
+ * @param {Object} error - Error object.
+ */
+
+/**
+ * @typedef {Object} DownloadOptions - An object for configuring Asset Browser download behavior.
+ * @property {string} [outputFile=''] - Path to save the file. If not specified the system default is used.
+ */
+
+/**
+ * @typedef {Object} UploadOptions - An object for configuring Asset Browser upload behavior.
+ * @property {string} [uploadName=''] - The name your want the file to have in the Creative Cloud. If not specified the current file name is used.
+ * @property {boolean} [overwrite=false] - Sets whether or not to overwrite the existing file or create a copy.
+ */
 
 module.exports = CSDKAssetBrowser;
