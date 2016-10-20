@@ -51,6 +51,7 @@
 
         <source-file src="src/android/AssetBrowser.java" target-dir="src/com/adobe/phonegap/csdk" />
         <source-file src="src/android/AssetBrowserActivity.java" target-dir="src/com/adobe/phonegap/csdk" />
+        <source-file src="src/android/FileHelper.java" target-dir="src/com/adobe/phonegap/csdk" />
     </platform>
 
     <!-- ios -->
