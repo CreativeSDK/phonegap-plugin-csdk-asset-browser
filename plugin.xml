@@ -47,7 +47,7 @@
             <activity android:name="com.adobe.phonegap.csdk.AssetBrowserActivity" android:exported="false"/>
         </config-file>
 
-        <framework src="com.adobe.creativesdk.foundation:assetux:0.9.7+"/>
+        <framework src="com.adobe.creativesdk.foundation:assetux:0.9.1186+"/>
 
         <source-file src="src/android/AssetBrowser.java" target-dir="src/com/adobe/phonegap/csdk" />
         <source-file src="src/android/AssetBrowserActivity.java" target-dir="src/com/adobe/phonegap/csdk" />
