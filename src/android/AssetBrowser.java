@@ -90,6 +90,9 @@ public class AssetBrowser extends CordovaPlugin {
         @Override
         public void onCompletion(Boolean aBoolean) {
             Log.d(LOG_TAG, "Yay");
+            if (!downloadLocation.startsWith("file://")) {
+              downloadLocation = "file://" + downloadLocation;
+            }
             callbackContext.success(downloadLocation);
         }
     };
