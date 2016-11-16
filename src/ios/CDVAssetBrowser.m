@@ -229,25 +229,17 @@
              [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
          } ];
     }
-    /*
     else
     {
         NSString *message = @"The selected file type isn't a common image format so no "
         "thumbnail will be fetched from the server.\n\nTry selecting a JPEG, PNG or BMP file.";
 
-        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Demo Project"
-                                                                                 message:message
-                                                                          preferredStyle:UIAlertControllerStyleAlert];
 
-        UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"OK"
-                                                           style:UIAlertActionStyleDefault
-                                                         handler:NULL];
+        NSLog(@"%@", message);
 
-        [alertController addAction:okAction];
-
-        [self presentViewController:alertController animated:YES completion:nil];
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:message];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
     }
-     */
 }
 
 - (void)assetBrowserDidEncounterError:(NSError *)error
@@ -297,8 +289,8 @@
     NSMutableArray *sources = [NSMutableArray array];
 
     for (NSNumber *tempNumber in sourceOptions) {
-        int toolId = [tempNumber integerValue];
-        NSLog(@"Single element: %d", toolId);
+        NSInteger toolId = [tempNumber integerValue];
+        NSLog(@"Single element: %ld", (long)toolId);
         switch(toolId){
             case DataSourceTypeDraw:
                 [sources addObject: AdobeAssetDataSourceDraw];
@@ -320,9 +312,6 @@
                 break;
             case DataSourceTypeSketch:
                 [sources addObject: AdobeAssetDataSourceSketch];
-                break;
-            case DataSourceTypeBrush:
-                [sources addObject: AdobeAssetDataSourceBrushCC];
                 break;
             default:
                 // Ignore any source not from the above
