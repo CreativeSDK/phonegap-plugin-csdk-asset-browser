@@ -45,6 +45,7 @@ var CSDKAssetBrowser = {
      */
     downloadFiles: function(successCallback, failureCallback, options) {
         options = options || {};
+        options.dataSource = CSDKAssetBrowser.DataSourceType.FILES;
         var dataSourceTypes = CSDKAssetBrowser.getDataSources(options.dataSource);
         var outputFile = options.outputFile || '';
         exec(successCallback, failureCallback, 'CSDKAssetBrowser', 'downloadFiles', [ dataSourceTypes, outputFile ]);
