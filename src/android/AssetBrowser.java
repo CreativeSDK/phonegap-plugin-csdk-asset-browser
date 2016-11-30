@@ -171,7 +171,8 @@ public class AssetBrowser extends CordovaPlugin {
         } else if (action.equals("uploadFile")) {
             String url = args.getString(0);
             URL assetUrl = !url.startsWith("content") ? createURL(url) : createURL(FileHelper.getRealPath(cordova.getActivity(), Uri.parse(url)));
-            String filename = assetUrl.getFile();
+            String filepath = assetUrl.getFile();
+            String filename = filepath.substring( filepath.lastIndexOf('/') + 1, filepath.length() );
             String mimeType = FileHelper.getMimeType(url, cordova);
             String uploadName = args.getString(1);
             if (uploadName == null || "".equals(uploadName)) {
