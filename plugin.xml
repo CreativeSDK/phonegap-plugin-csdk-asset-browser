@@ -73,6 +73,7 @@
         AdobeCreativeSDKAssetUX.framework
         -->
 
+        <framework src="libsqlite3.tbd"/>
         <resource-file src="src/ios/AdobeCreativeSDKFrameworks/AdobeCreativeSDKCommonUX.framework/Versions/A/Resources/AdobeCreativeSDKCommonUXResources.bundle" />
         <framework src="src/ios/AdobeCreativeSDKFrameworks/AdobeCreativeSDKCommonUX.framework" custom="true" />
         <resource-file src="src/ios/AdobeCreativeSDKFrameworks/AdobeCreativeSDKAssetUX.framework/Versions/A/Resources/AdobeCreativeSDKAssetUXResources.bundle" />
