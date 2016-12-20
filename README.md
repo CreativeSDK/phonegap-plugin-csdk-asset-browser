@@ -65,6 +65,8 @@ phonegap plugin add --save https://github.com/CreativeSDK/phonegap-plugin-csdk-a
 
 **iOS**
 
+_**Note:** For some developers, the iOS version of the SDK is currently running into some server issues (getting a `400` on launch of the component). We are looking into the issue and will provide an update as soon as possible._
+
 To get the iOS SDK, go to the [Downloads page](https://creativesdk.adobe.com/downloads.html), click the download link for `STATIC FRAMEWORKS (DEPRECATED)`, and extract it to the `src/ios` folder of this plugin. Extracting the ZIP will create an `AdobeCreativeSDKFrameworks` folder.
 
 The ZIP files contain all the frameworks in the Creative SDK, but for this plugin we will only be using the `AdobeCreativeSDKImage.framework`.
